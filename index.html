@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narrative Quest — A Long Time Ago</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4/fonts/remixicon.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{
+  --gold:#D4AF37; --gold-bright:#F5C542; --gold-soft:rgba(212,175,55,.16);
+  --red:#C8102E; --red-bright:#E63946; --red-soft:rgba(200,16,46,.14);
+  --font-body:'Sora',sans-serif; --font-digi:'Chakra Petch',monospace;
+}
+[data-theme="dark"]{
+  --bg:#0b0d14; --bg2:#11141f; --card:#161a28; --card2:#1c2133;
+  --text:#eef1f8; --muted:#8b93a7; --border:rgba(212,175,55,.18);
+  --glow:0 0 24px rgba(212,175,55,.25);
+}
+[data-theme="light"]{
+  --bg:#faf7ef; --bg2:#f3efe2; --card:#ffffff; --card2:#faf6ea;
+  --text:#1a1a2e; --muted:#6b7280; --border:rgba(200,16,46,.15);
+  --glow:0 0 20px rgba(212,175,55,.35);
+}
+*{box-sizing:border-box;font-family:var(--font-body)}
+body{background:var(--bg);color:var(--text);margin:0;transition:background .4s,color .4s;min-height:100vh}
+.app-shell{display:flex;min-height:100vh}
+.sidebar{width:260px;flex-shrink:0;background:linear-gradient(180deg,var(--card),var(--bg2));border-right:1px solid var(--border);padding:24px 18px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:8px}
+.main{flex:1;padding:32px 40px;min-width:0}
+.brand{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:20px}
+.brand-logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--red));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:20px;box-shadow:var(--glow)}
+.brand-name{font-weight:700;font-size:15px;line-height:1.2}
+.brand-sub{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;cursor:pointer;color:var(--muted);font-size:14px;font-weight:500;transition:all .2s;border:1px solid transparent}
+.nav-item:hover{background:var(--gold-soft);color:var(--text)}
+.nav-item.active{background:linear-gradient(90deg,var(--gold-soft),transparent);color:var(--gold-bright);border-color:var(--border);box-shadow:inset 3px 0 0 var(--gold)}
+.nav-item i{font-size:18px}
+.nav-item.lock{color:var(--red-bright)}
+.nav-item.lock:hover{background:var(--red-soft)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;box-shadow:0 4px 24px rgba(0,0,0,.15)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 28px;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer;transition:all .2s;border:none}
+.btn-primary{background:linear-gradient(135deg,var(--gold),#b8941f);color:#1a1405;box-shadow:var(--glow)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(212,175,55,.45)}
+.btn-danger{background:linear-gradient(135deg,var(--red),#9a0b22);color:#fff}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold-bright)}
+.input{width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:14px;outline:none;transition:all .2s}
+.input:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+.label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:block}
+.timer{font-family:var(--font-digi);font-size:28px;font-weight:700;letter-spacing:2px}
+.timer.warn{color:var(--red-bright);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.5}}
+.opt{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s;background:var(--card2);margin-bottom:10px}
+.opt:hover{border-color:var(--gold);background:var(--gold-soft)}
+.opt.sel{border-color:var(--gold);background:var(--gold-soft);box-shadow:0 0 0 1px var(--gold)}
+.opt-letter{width:32px;height:32px;border-radius:8px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-family:var(--font-digi)}
+.opt.sel .opt-letter{background:var(--gold);color:#1a1405;border-color:var(--gold)}
+.progress-bar{height:8px;background:var(--card2);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--gold));transition:width .4s;border-radius:99px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;background:var(--gold-soft);color:var(--gold-bright);border:1px solid var(--border)}
+.cert{background:linear-gradient(135deg,#fff8e7,#fff);color:#1a1405;padding:48px;border-radius:16px;border:6px double var(--gold);position:relative;max-width:760px;margin:0 auto;text-align:center}
+.cert h2{font-family:var(--font-digi);color:var(--red);letter-spacing:.15em;margin:0}
+.cert .name{font-size:32px;font-weight:800;color:#1a1405;margin:16px 0;border-bottom:2px solid var(--gold);display:inline-block;padding-bottom:8px}
+.toggle{display:inline-flex;background:var(--card2);border:1px solid var(--border);border-radius:99px;padding:4px}
+.toggle button{padding:6px 18px;border-radius:99px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.toggle button.on{background:var(--gold);color:#1a1405}
+.lock-screen{position:fixed;inset:0;background:rgba(5,6,10,.92);backdrop-filter:blur(12px);z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;color:#fff;text-align:center;padding:24px}
+.lock-icon{width:80px;height:80px;border-radius:50%;background:var(--red-soft);border:2px solid var(--red);display:flex;align-items:center;justify-content:center;font-size:36px;color:var(--red-bright)}
+.stat-card{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center}
+.stat-num{font-family:var(--font-digi);font-size:36px;font-weight:700;background:linear-gradient(135deg,var(--gold),var(--red));-webkit-background-clip:text;background-clip:text;color:transparent}
+@media(max-width:768px){.sidebar{display:none}.main{padding:20px}}
+@media print{.no-print{display:none!important}body{background:#fff}}
+</style>
+</head>
+<body data-theme="dark">
+<div id="app"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ TRANSLATIONS ============ */
+var T = {
+  id:{
+    appName:"Narrative Quest", appSub:"A Long Time Ago",
+    login:"Masuk", username:"Username", password:"Kata Sandi",
+    loginBtn:"Masuk ke Sistem", loginHint:"Hubungi administrator untuk akses",
+    wrongCred:"Username atau kata sandi salah",
+    lang:"Bahasa", theme:"Tema", light:"Terang", dark:"Gelap",
+    dashboard:"Beranda", identity:"Identitas Murid", startQuiz:"Mulai Ujian",
+    certificate:"Sertifikat", about:"Tentang", lockOut:"Kunci / Keluar",
+    creator:"Dibuat oleh", creatorName:"AHMAD BUDI LEKSONO",
+    studentName:"Nama Lengkap", studentClass:"Kelas", studentNo:"Nomor Presensi",
+    studentMadrasah:"Asal Madrasah", saveIdentity:"Simpan & Lanjutkan",
+    identitySaved:"Identitas tersimpan. Soal telah diacak otomatis untukmu.",
+    welcome:"Selamat Datang", welcomeDesc:"Sistem Evaluasi Pembelajaran Bahasa Inggris",
+    chapter:"Bab VII — A Long Time Ago (Narrative Text)",
+    totalSoal:"Jumlah Soal", duration:"Durasi", passScore:"Nilai Minimum",
+    startExam:"Mulai Ujian Sekarang", rules:"Peraturan Ujian",
+    rule1:"Dilarang menyalin (copy-paste) teks soal",
+    rule2:"Dilarang membuka tab/jendela lain — ujian otomatis terkunci",
+    rule3:"Waktu berjalan 40 menit, ujian berhenti otomatis saat waktu habis",
+    rule4:"Sertifikat diberikan jika nilai ≥ 80",
+    timeLeft:"Sisa Waktu", question:"Soal", of:"dari", next:"Berikutnya",
+    prev:"Sebelumnya", submit:"Kumpulkan Jawaban", confirmSubmit:"Yakin ingin mengumpulkan?",
+    result:"Hasil Ujian", score:"Nilai", correct:"Jawaban Benar", wrong:"Jawaban Salah",
+    passed:"SELAMAT! Anda Lulus", failed:"Belum Lulus — Coba Lagi",
+    certEarned:"Sertifikat diperoleh", certNotEarned:"Nilai < 80, sertifikat tidak diberikan",
+    printCert:"Cetak / Unduh Sertifikat", retry:"Ulangi Ujian", backHome:"Kembali ke Beranda",
+    certTitle:"SERTIFIKAT PENYELASAIAN", certText:"Diberikan kepada",
+    certFor:"Telah menyelesaikan evaluasi pembelajaran",
+    certChapter:"Bahasa Inggris — Narrative Text (A Long Time Ago)",
+    certScore:"dengan nilai", certDate:"pada tanggal", certSign:"Mengetahui,",
+    locked:"APLIKASI TERKUNCI", lockReasonTab:"Terdeteksi membuka tab / jendela lain.",
+    lockReasonManual:"Sesi dikunci oleh pengguna.", lockReasonTime:"Waktu habis — ujian berakhir otomatis.",
+    lockMsg:"Ujian tidak dapat dilanjutkan. Hubungi administrator untuk membuka kembali sesi.",
+    relogin:"Masuk Ulang", fillAll:"Lengkapi semua data identitas",
+    quizRunning:"Ujian sedang berlangsung...", noCert:"Belum ada sertifikat. Selesaikan ujian dengan nilai ≥ 80.",
+    aboutText:"Aplikasi evaluasi interaktif berbasis web untuk pembelajaran Bahasa Inggris SMP/MTs Kelas VIII. Materi: Narrative Text (A Long Time Ago). Dilengkapi sistem anti-kecuruan, timer real-time, randomisasi soal otomatis, dan sertifikat digital.",
+    confirmLock:"Kunci sesi sekarang? Ujian yang berjalan akan berhenti."
+  },
+  en:{
+    appName:"Narrative Quest", appSub:"A Long Time Ago",
+    login:"Sign In", username:"Username", password:"Password",
+    loginBtn:"Enter System", loginHint:"Contact administrator for access",
+    wrongCred:"Incorrect username or password",
+    lang:"Language", theme:"Theme", light:"Light", dark:"Dark",
+    dashboard:"Dashboard", identity:"Student Identity", startQuiz:"Start Exam",
+    certificate:"Certificate", about:"About", lockOut:"Lock / Exit",
+    creator:"Created by", creatorName:"AHMAD BUDI LEKSONO",
+    studentName:"Full Name", studentClass:"Class", studentNo:"Attendance No.",
+    studentMadrasah:"Madrasah Origin", saveIdentity:"Save & Continue",
+    identitySaved:"Identity saved. Questions have been auto-randomized for you.",
+    welcome:"Welcome", welcomeDesc:"English Learning Evaluation System",
+    chapter:"Chapter VII — A Long Time Ago (Narrative Text)",
+    totalSoal:"Total Questions", duration:"Duration", passScore:"Minimum Score",
+    startExam:"Start Exam Now", rules:"Exam Rules",
+    rule1:"Copy-pasting question text is prohibited",
+    rule2:"Opening other tabs/windows is prohibited — exam auto-locks",
+    rule3:"40-minute countdown; exam auto-submits when time runs out",
+    rule4:"Certificate awarded if score ≥ 80",
+    timeLeft:"Time Left", question:"Question", of:"of", next:"Next",
+    prev:"Previous", submit:"Submit Answers", confirmSubmit:"Are you sure you want to submit?",
+    result:"Exam Result", score:"Score", correct:"Correct", wrong:"Incorrect",
+    passed:"CONGRATULATIONS! You Passed", failed:"Not Passed — Try Again",
+    certEarned:"Certificate earned", certNotEarned:"Score < 80, no certificate awarded",
+    printCert:"Print / Download Certificate", retry:"Retake Exam", backHome:"Back to Dashboard",
+    certTitle:"CERTIFICATE OF COMPLETION", certText:"This certificate is awarded to",
+    certFor:"Has successfully completed the learning evaluation on",
+    certChapter:"English — Narrative Text (A Long Time Ago)",
+    certScore:"with a score of", certDate:"on", certSign:"Acknowledged by,",
+    locked:"APPLICATION LOCKED", lockReasonTab:"Detected opening another tab / window.",
+    lockReasonManual:"Session locked by user.", lockReasonTime:"Time's up — exam ended automatically.",
+    lockMsg:"Exam cannot be continued. Contact administrator to reopen the session.",
+    relogin:"Re-Login", fillAll:"Please complete all identity fields",
+    quizRunning:"Exam in progress...", noCert:"No certificate yet. Complete the exam with score ≥ 80.",
+    aboutText:"Interactive web-based evaluation application for English learning SMP/MTs Grade VIII. Material: Narrative Text (A Long Time Ago). Equipped with anti-cheat system, real-time timer, automatic question randomization, and digital certificate.",
+    confirmLock:"Lock session now? Any ongoing exam will stop."
+  }
+};
+
+/* ============ QUESTION BANK (from PDF Chapter VII) ============ */
+var QB = [
+  {q:"What is the story of Ang-ngalo mainly about?", o:["How people found salt","Why the sea became salty","What a giant was afraid of","How a giant helped villagers"], a:1},
+  {q:"Why did the villagers have difficulty getting salt?", o:["They fought a huge giant","It was at the sea bottom","They climbed a high mountain","They had to cross the sea with big waves"], a:3},
+  {q:"What was Ang-ngalo's character like?", o:["Polite","Patient","Helpful","Friendly"], a:2},
+  {q:"Why did Ang-ngalo hesitate to stretch his leg again?", o:["He feared red ants biting him","The sea was too deep","Villagers walked too fast","Villagers hurt his leg"], a:0},
+  {q:"The story of the straw, coal, and bean is mainly about...", o:["Victory","Solidarity","Friendship","Love and respect"], a:2},
+  {q:"How did the coal and bean cross the brook?", o:["They made a small boat","They walked on the straw","They swam across","They asked a human for help"], a:1},
+  {q:"Who finally survived in the story?", o:["The coal","The bean","The straw","The old woman"], a:1},
+  {q:"What would have happened if the tailor had not sewn the bean?", o:["She would be in pieces","She would be cooked","She would be eaten","She would lose her friends"], a:0},
+  {q:"From Mulan's story, we know that...", o:["Mulan had an elder brother","Mulan was a war strategist","Mulan learned kung fu by herself","Nobody knew Mulan was a woman"], a:3},
+  {q:"The social function of a narrative text is to...", o:["Describe something in detail","Entertain readers or listeners","Tell how to do something","Report factual events"], a:1},
+  {q:"Which part of a narrative text sets the scene and introduces characters?", o:["Complication","Resolution","Orientation","Re-orientation"], a:2},
+  {q:"Which part presents the problems faced by the characters?", o:["Orientation","Complication","Resolution","Identification"], a:1},
+  {q:"Which part states how the problem is solved?", o:["Resolution","Complication","Orientation","Description"], a:0},
+  {q:"What tense is mostly used in narrative texts?", o:["Simple present","Simple past","Present continuous","Future tense"], a:1},
+  {q:"'Once upon a time, there was an old woman...' This part is called...", o:["Complication","Resolution","Orientation","Conclusion"], a:2},
+  {q:"The story 'The Old Woman in a Vinegar Bottle' teaches that happiness...", o:["Comes from a big house","Comes from wealth","Comes from the heart","Comes from being a queen"], a:2}
+];
+
+/* ============ STATE ============ */
+var S = {
+  lang:"id", theme:"dark", view:"login",
+  student:null, quiz:null, locked:false, lockReason:"",
+  lastResult:null, timerInt:null
+};
+var TIME_LIMIT = 40*60; // 40 minutes
+
+/* ============ HELPERS ============ */
+function t(k){return T[S.lang][k]||k;}
+function $(id){return document.getElementById(id);}
+function hashStr(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function shuffle(arr,seed){var r=mulberry32(seed);var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(r()*(i+1));var tmp=a[i];a[i]=a[j];a[j]=tmp;}return a;}
+function fmtTime(s){var m=Math.floor(s/60),ss=s%60;return (m<10?"0":"")+m+":"+(ss<10?"0":"")+ss;}
+function todayStr(){var d=new Date();return d.toLocaleDateString(S.lang==="id"?"id-ID":"en-US",{day:"numeric",month:"long",year:"numeric"});}
+
+/* Build quiz set from student identity (auto-randomize) */
+function buildQuiz(){
+  if(!S.student) return;
+  var seed = hashStr(S.student.name+"|"+S.student.cls+"|"+S.student.no+"|"+S.student.mad);
+  var qs = shuffle(QB, seed).slice(0,15);
+  // shuffle options within each question, track correct
+  qs = qs.map(function(item){
+    var idxs=[0,1,2,3];
+    var si = shuffle(idxs, seed+item.q.length);
+    var newOpts = si.map(function(i){return item.o[i];});
+    var newA = si.indexOf(item.a);
+    return {q:item.q, o:newOpts, a:newA, userAns:-1};
+  });
+  S.quiz = {qs:qs, idx:0, timeLeft:TIME_LIMIT, startedAt:Date.now(), finished:false};
+}
+
+/* ============ RENDER ============ */
+function render(){
+  var app = $("app");
+  if(S.locked){ app.innerHTML = renderLock(); bindLock(); return; }
+  if(S.view==="login"){ app.innerHTML = renderLogin(); bindLogin(); return; }
+  // authenticated shell with sidebar
+  app.innerHTML = '<div class="app-shell">'+renderSidebar()+'<div class="main" id="mainContent">'+renderMain()+'</div></div>';
+  bindShell();
+  if(S.view==="quiz") bindQuiz();
+  if(S.view==="result") bindResult();
+}
+
+function renderLogin(){
+  return '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(800px 500px at 70% -10%,var(--gold-soft),transparent 60%),radial-gradient(600px 400px at 10% 110%,var(--red-soft),transparent 60%),var(--bg)">'
+  +'<div class="card" style="width:100%;max-width:420px;position:relative;overflow:hidden">'
+  +'<div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--red),var(--gold),var(--red))"></div>'
+  +'<div style="text-align:center;margin-bottom:24px">'
+  +'<div style="width:64px;height:64px;margin:0 auto 14px;border-radius:16px;background:linear-gradient(135deg,var(--gold),var(--red));display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;box-shadow:var(--glow)"><i class="ri-book-open-fill"></i></div>'
+  +'<h1 style="font-size:22px;font-weight:800;margin:0">'+t("appName")+'</h1>'
+  +'<p style="color:var(--muted);font-size:13px;margin:4px 0 0">'+t("chapter")+'</p></div>'
+  +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">'
+  +'<div><span class="label" style="margin:0 8px 0 0;display:inline">'+t("lang")+'</span><div class="toggle" style="display:inline-flex"><button data-lang="id" class="'+(S.lang==="id"?"on":"")+'">ID</button><button data-lang="en" class="'+(S.lang==="en"?"on":"")+'">EN</button></div></div>'
+  +'<div><span class="label" style="margin:0 8px 0 0;display:inline">'+t("theme")+'</span><div class="toggle" style="display:inline-flex"><button data-theme="light" class="'+(S.theme==="light"?"on":"")+'"><i class="ri-sun-line"></i></button><button data-theme="dark" class="'+(S.theme==="dark"?"on":"")+'"><i class="ri-moon-line"></i></button></div></div>'
+  +'</div>'
+  +'<div style="margin-bottom:14px"><label class="label">'+t("username")+'</label><input id="u" class="input" placeholder="admin" autocomplete="off"></div>'
+  +'<div style="margin-bottom:18px"><label class="label">'+t("password")+'</label><input id="p" class="input" type="password" placeholder="••••••••••"></div>'
+  +'<div id="loginErr" style="color:var(--red-bright);font-size:12px;margin-bottom:12px;min-height:16px"></div>'
+  +'<button id="loginBtn" class="btn btn-primary" style="width:100%"><i class="ri-login-box-line"></i>'+t("loginBtn")+'</button>'
+  +'<p style="text-align:center;color:var(--muted);font-size:11px;margin-top:16px">'+t("loginHint")+'</p>'
+  +'<p style="text-align:center;color:var(--muted);font-size:10px;margin-top:8px">'+t("creator")+': <strong style="color:var(--gold-bright)">'+t("creatorName")+'</strong></p>'
+  +'</div></div>';
+}
+
+function renderSidebar(){
+  var items = [
+    ["dashboard","ri-dashboard-line",t("dashboard")],
+    ["identity","ri-user-3-line",t("identity")],
+    ["startQuiz","ri-play-circle-line",t("startQuiz")],
+    ["certificate","ri-award-line",t("certificate")],
+    ["about","ri-information-line",t("about")]
+  ];
+  var html = '<div class="sidebar"><div class="brand"><div class="brand-logo"><i class="ri-book-open-fill"></i></div><div><div class="brand-name">'+t("appName")+'</div><div class="brand-sub">'+t("appSub")+'</div></div></div>';
+  items.forEach(function(it){
+    html += '<div class="nav-item '+(S.view===it[0]?"active":"")+'" data-nav="'+it[0]+'"><i class="'+it[1]+'"></i>'+it[2]+'</div>';
+  });
+  html += '<div style="flex:1"></div>';
+  html += '<div class="nav-item lock" data-nav="lockOut"><i class="ri-lock-2-line"></i>'+t("lockOut")+'</div>';
+  if(S.student){
+    html += '<div style="margin-top:12px;padding:12px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)">'
+    +'<div style="color:var(--gold-bright);font-weight:700;margin-bottom:4px">'+S.student.name+'</div>'
+    +S.student.cls+' · No. '+S.student.no+'<br>'+S.student.mad+'</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderMain(){
+  if(S.view==="dashboard") return renderDashboard();
+  if(S.view==="identity") return renderIdentity();
+  if(S.view==="startQuiz"||S.view==="quiz") return S.quiz&&!S.quiz.finished?renderQuiz():renderStart();
+  if(S.view==="certificate") return renderCertPage();
+  if(S.view==="about") return renderAbout();
+  if(S.view==="result") return renderResult();
+  return renderDashboard();
+}
+
+function renderDashboard(){
+  var html = '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:24px">'
+  +'<div><h1 style="font-size:26px;font-weight:800;margin:0">'+t("welcome")+(S.student?', '+S.student.name.split(" ")[0]:'')+'</h1>'
+  +'<p style="color:var(--muted);margin:4px 0 0;font-size:14px">'+t("welcomeDesc")+'</p></div>'
+  +'<div class="toggle"><button data-lang="id" class="'+(S.lang==="id"?"on":"")+'">ID</button><button data-lang="en" class="'+(S.lang==="en"?"on":"")+'">EN</button></div>'
+  +'<div class="toggle"><button data-theme="light" class="'+(S.theme==="light"?"on":"")+'"><i class="ri-sun-line"></i></button><button data-theme="dark" class="'+(S.theme==="dark"?"on":"")+'"><i class="ri-moon-line"></i></button></div>'
+  +'</div>';
+  html += '<div class="card" style="margin-bottom:20px;background:linear-gradient(135deg,var(--gold-soft),var(--red-soft));border-color:var(--gold)">'
+  +'<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">'
+  +'<div style="width:56px;height:56px;border-radius:14px;background:var(--gold);display:flex;align-items:center;justify-content:center;color:#1a1405;font-size:26px"><i class="ri-book-2-fill"></i></div>'
+  +'<div style="flex:1;min-width:200px"><h2 style="margin:0;font-size:18px;font-weight:700">'+t("chapter")+'</h2>'
+  +'<p style="margin:4px 0 0;color:var(--muted);font-size:13px">SMP/MTs Kelas VIII · Semester 1 · Bahasa Inggris</p></div>'
+  +'<button class="btn btn-primary" data-nav="startQuiz"><i class="ri-play-fill"></i>'+t("startExam")+'</button></div></div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px">'
+  +'<div class="stat-card"><div class="stat-num">15</div><div style="color:var(--muted);font-size:12px;margin-top:4px">'+t("totalSoal")+'</div></div>'
+  +'<div class="stat-card"><div class="stat-num">40<span style="font-size:18px">min</span></div><div style="color:var(--muted);font-size:12px;margin-top:4px">'+t("duration")+'</div></div>'
+  +'<div class="stat-card"><div class="stat-num">80</div><div style="color:var(--muted);font-size:12px;margin-top:4px">'+t("passScore")+'</div></div>'
+  +'<div class="stat-card"><div class="stat-num" style="background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent">'+(S.lastResult?S.lastResult.score:"-")+'</div><div style="color:var(--muted);font-size:12px;margin-top:4px">'+t("score")+'</div></div>'
+  +'</div>';
+  html += '<div class="card"><h3 style="margin:0 0 14px;font-size:16px;font-weight:700"><i class="ri-shield-check-line" style="color:var(--gold-bright)"></i> '+t("rules")+'</h3>'
+  +'<ol style="margin:0;padding-left:20px;color:var(--muted);font-size:13px;line-height:2">'
+  +'<li>'+t("rule1")+'</li><li>'+t("rule2")+'</li><li>'+t("rule3")+'</li><li>'+t("rule4")+'</li></ol></div>';
+  return html;
+}
+
+function renderIdentity(){
+  var s = S.student||{name:"",cls:"",no:"",mad:""};
+  return '<div class="card" style="max-width:560px"><h2 style="margin:0 0 6px;font-size:22px;font-weight:800"><i class="ri-user-3-line" style="color:var(--gold-bright)"></i> '+t("identity")+'</h2>'
+  +'<p style="color:var(--muted);font-size:13px;margin:0 0 24px">'+t("identitySaved")+'</p>'
+  +'<div style="margin-bottom:16px"><label class="label">'+t("studentName")+'</label><input id="fName" class="input" value="'+s.name+'"></div>'
+  +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">'
+  +'<div><label class="label">'+t("studentClass")+'</label><input id="fCls" class="input" value="'+s.cls+'" placeholder="VIII A"></div>'
+  +'<div><label class="label">'+t("studentNo")+'</label><input id="fNo" class="input" type="number" value="'+s.no+'"></div></div>'
+  +'<div style="margin-bottom:24px"><label class="label">'+t("studentMadrasah")+'</label><input id="fMad" class="input" value="'+s.mad+'"></div>'
+  +'<div id="idErr" style="color:var(--red-bright);font-size:12px;margin-bottom:12px;min-height:16px"></div>'
+  +'<button id="saveId" class="btn btn-primary"><i class="ri-save-line"></i>'+t("saveIdentity")+'</button></div>';
+}
+
+function renderStart(){
+  if(!S.student){ return '<div class="card" style="max-width:560px"><i class="ri-alert-line" style="color:var(--red-bright);font-size:32px"></i><h3 style="margin:12px 0 8px">'+t("fillAll")+'</h3><p style="color:var(--muted)">'+(S.lang==="id"?"Isi identitas murid terlebih dahulu.":"Fill in student identity first.")+'</p><button class="btn btn-primary" data-nav="identity">'+t("identity")+'</button></div>'; }
+  return '<div class="card" style="max-width:560px;text-align:center">'
+  +'<div style="width:72px;height:72px;margin:0 auto 16px;border-radius:50%;background:var(--gold-soft);display:flex;align-items:center;justify-content:center;color:var(--gold-bright);font-size:32px;border:2px solid var(--gold)"><i class="ri-time-line"></i></div>'
+  +'<h2 style="margin:0 0 8px;font-size:22px;font-weight:800">'+t("startExam")+'</h2>'
+  +'<p style="color:var(--muted);font-size:13px;margin:0 0 20px">'+(S.lang==="id"?"Soal telah diacak otomatis berdasarkan identitasmu: ":"Questions auto-randomized for: ")+'<strong style="color:var(--gold-bright)">'+S.student.name+'</strong></p>'
+  +'<div style="display:flex;justify-content:center;gap:12px;margin-bottom:24px;flex-wrap:wrap">'
+  +'<span class="badge"><i class="ri-file-list-3-line"></i>15 '+t("question")+'</span>'
+  +'<span class="badge"><i class="ri-time-line"></i>40 '+t("duration")+'</span>'
+  +'<span class="badge"><i class="ri-award-line"></i>≥80 '+t("certificate")+'</span></div>'
+  +'<button id="goQuiz" class="btn btn-primary" style="font-size:16px;padding:14px 36px"><i class="ri-play-fill"></i>'+t("startExam")+'</button></div>';
+}
+
+function renderQuiz(){
+  var qz = S.quiz, q = qz.qs[qz.idx];
+  var pct = Math.round((qz.idx)/qz.qs.length*100);
+  var warn = qz.timeLeft<=300;
+  var html = '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">'
+  +'<div><span class="badge"><i class="ri-quill-pen-line"></i>'+t("question")+' '+(qz.idx+1)+' '+t("of")+' '+qz.qs.length+'</span></div>'
+  +'<div class="card" style="padding:10px 20px;display:flex;align-items:center;gap:10px"><i class="ri-time-line" style="color:'+(warn?"var(--red-bright)":"var(--gold-bright)")+';font-size:20px"></i><span class="timer '+(warn?"warn":"")+'" id="timerDisp">'+fmtTime(qz.timeLeft)+'</span></div></div>';
+  html += '<div class="progress-bar" style="margin-bottom:20px"><div class="progress-fill" style="width:'+pct+'%"></div></div>';
+  html += '<div class="card" id="quizCard"><h3 style="margin:0 0 20px;font-size:17px;line-height:1.6;font-weight:600">'+(qz.idx+1)+'. '+q.q+'</h3><div id="opts">';
+  var letters=["A","B","C","D"];
+  q.o.forEach(function(opt,i){
+    html += '<div class="opt '+(q.userAns===i?"sel":"")+'" data-opt="'+i+'"><div class="opt-letter">'+letters[i]+'</div><div style="font-size:14px;line-height:1.5;padding-top:5px">'+opt+'</div></div>';
+  });
+  html += '</div></div>';
+  html += '<div style="display:flex;justify-content:space-between;margin-top:20px;gap:12px;flex-wrap:wrap">'
+  +'<button class="btn btn-ghost" id="prevBtn" '+(qz.idx===0?"disabled style='opacity:.4;cursor:not-allowed'":"")+'><i class="ri-arrow-left-line"></i>'+t("prev")+'</button>'
+  +(qz.idx===qz.qs.length-1?'<button class="btn btn-danger" id="submitBtn"><i class="ri-send-plane-line"></i>'+t("submit")+'</button>':'<button class="btn btn-primary" id="nextBtn">'+t("next")+'<i class="ri-arrow-right-line"></i></button>')
+  +'</div>';
+  return html;
+}
+
+function renderResult(){
+  var r = S.lastResult;
+  var passed = r.score>=80;
+  var html = '<div class="card" style="max-width:640px;margin:0 auto;text-align:center">'
+  +'<div style="width:80px;height:80px;margin:0 auto 16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;color:#fff;background:linear-gradient(135deg,'+(passed?"var(--gold),#b8941f":"var(--red),#9a0b22")+');box-shadow:var(--glow)"><i class="ri-'+(passed?"trophy-fill":"close-circle-fill")+'"></i></div>'
+  +'<h2 style="margin:0 0 4px;font-size:24px;font-weight:800;color:'+(passed?"var(--gold-bright)":"var(--red-bright)")+'">'+(passed?t("passed"):t("failed"))+'</h2>'
+  +'<p style="color:var(--muted);font-size:13px;margin:0 0 24px">'+(passed?t("certEarned"):t("certNotEarned"))+'</p>'
+  +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px">'
+  +'<div class="stat-card"><div class="stat-num">'+r.score+'</div><div style="color:var(--muted);font-size:11px;margin-top:4px">'+t("score")+'</div></div>'
+  +'<div class="stat-card"><div class="stat-num" style="background:linear-gradient(135deg,#0d9669,#059669);-webkit-background-clip:text;background-clip:text;color:transparent">'+r.correct+'</div><div style="color:var(--muted);font-size:11px;margin-top:4px">'+t("correct")+'</div></div>'
+  +'<div class="stat-card"><div class="stat-num" style="background:linear-gradient(135deg,var(--red),var(--red-bright));-webkit-background-clip:text;background-clip:text;color:transparent">'+r.wrong+'</div><div style="color:var(--muted);font-size:11px;margin-top:4px">'+t("wrong")+'</div></div></div>';
+  if(passed){
+    html += renderCertificateHTML();
+    html += '<div style="margin-top:20px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">'
+    +'<button class="btn btn-primary no-print" id="printBtn"><i class="ri-printer-line"></i>'+t("printCert")+'</button>'
+    +'<button class="btn btn-ghost no-print" data-nav="dashboard">'+t("backHome")+'</button></div>';
+  } else {
+    html += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">'
+    +'<button class="btn btn-primary" data-nav="startQuiz"><i class="ri-refresh-line"></i>'+t("retry")+'</button>'
+    +'<button class="btn btn-ghost" data-nav="dashboard">'+t("backHome")+'</button></div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderCertificateHTML(){
+  var r = S.lastResult;
+  return '<div class="cert" id="certBox">'
+  +'<div style="position:absolute;top:16px;left:16px;font-size:32px;color:var(--gold)"><i class="ri-vip-crown-fill"></i></div>'
+  +'<div style="position:absolute;top:16px;right:16px;font-size:32px;color:var(--gold)"><i class="ri-vip-crown-fill"></i></div>'
+  +'<h2 style="font-size:22px;margin-bottom:6px">'+t("certTitle")+'</h2>'
+  +'<div style="height:3px;width:120px;margin:0 auto 20px;background:linear-gradient(90deg,var(--red),var(--gold),var(--red))"></div>'
+  +'<p style="margin:0;color:#6b7280;font-size:14px">'+t("certText")+'</p>'
+  +'<div class="name">'+S.student.name.toUpperCase()+'</div>'
+  +'<p style="margin:14px 0 6px;color:#6b7280;font-size:13px">'+t("certFor")+'</p>'
+  +'<p style="margin:0;font-weight:700;font-size:15px;color:#1a1405">'+t("certChapter")+'</p>'
+  +'<p style="margin:14px 0 0;font-size:14px;color:#6b7280">'+t("certScore")+' <strong style="font-size:28px;color:var(--red);font-family:var(--font-digi)">'+r.score+'</strong></p>'
+  +'<p style="margin:6px 0 30px;font-size:12px;color:#6b7280">'+t("certDate")+' '+todayStr()+'</p>'
+  +'<div style="display:flex;justify-content:space-between;max-width:420px;margin:0 auto;font-size:12px;color:#6b7280">'
+  +'<div><div style="margin-bottom:40px">'+t("creator")+'</div><div style="border-top:1px solid #999;padding-top:6px;font-weight:700;color:#1a1405">'+t("creatorName")+'</div></div>'
+  +'<div><div style="margin-bottom:40px">'+t("certSign")+'</div><div style="border-top:1px solid #999;padding-top:6px;font-weight:700;color:#1a1405">Guru Bahasa Inggris</div></div></div>'
+  +'</div>';
+}
+
+function renderCertPage(){
+  if(S.lastResult && S.lastResult.score>=80){
+    return '<div class="no-print" style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px"><h2 style="margin:0;font-size:22px;font-weight:800"><i class="ri-award-line" style="color:var(--gold-bright)"></i> '+t("certificate")+'</h2>'
+    +'<button class="btn btn-primary" id="printBtn2"><i class="ri-printer-line"></i>'+t("printCert")+'</button></div>'+renderCertificateHTML();
+  }
+  return '<div class="card" style="max-width:560px;text-align:center;padding:48px"><i class="ri-award-line" style="font-size:48px;color:var(--muted)"></i><p style="color:var(--muted);margin-top:16px">'+t("noCert")+'</p><button class="btn btn-primary" data-nav="startQuiz">'+t("startExam")+'</button></div>';
+}
+
+function renderAbout(){
+  return '<div class="card" style="max-width:640px"><h2 style="margin:0 0 16px;font-size:22px;font-weight:800"><i class="ri-information-line" style="color:var(--gold-bright)"></i> '+t("about")+'</h2>'
+  +'<p style="color:var(--muted);line-height:1.8;font-size:14px">'+t("aboutText")+'</p>'
+  +'<div style="margin-top:24px;padding:20px;border-radius:12px;background:linear-gradient(135deg,var(--gold-soft),var(--red-soft));border:1px solid var(--gold);text-align:center">'
+  +'<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:6px">'+t("creator")+'</div>'
+  +'<div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--red));-webkit-background-clip:text;background-clip:text;color:transparent">'+t("creatorName")+'</div></div></div>';
+}
+
+function renderLock(){
+  return '<div class="lock-screen"><div class="lock-icon"><i class="ri-lock-2-fill"></i></div>'
+  +'<h1 style="font-size:28px;font-weight:800;margin:0;color:var(--red-bright)">'+t("locked")+'</h1>'
+  +'<p style="color:#fff;font-size:15px;max-width:440px;margin:0">'+S.lockReason+'</p>'
+  +'<p style="color:#8b93a7;font-size:13px;max-width:440px;margin:0">'+t("lockMsg")+'</p>'
+  +'<button class="btn btn-primary" id="reloginBtn"><i class="ri-login-box-line"></i>'+t("relogin")+'</button></div>';
+}
+
+/* ============ BINDINGS ============ */
+function bindLogin(){
+  document.querySelectorAll("[data-lang]").forEach(function(b){b.onclick=function(){S.lang=b.getAttribute("data-lang");render();};});
+  document.querySelectorAll("[data-theme]").forEach(function(b){b.onclick=function(){S.theme=b.getAttribute("data-theme");document.body.setAttribute("data-theme",S.theme);render();};});
+  $("loginBtn").onclick=doLogin;
+  $("p").addEventListener("keydown",function(e){if(e.key==="Enter")doLogin();});
+  $("u").addEventListener("keydown",function(e){if(e.key==="Enter")$("p").focus();});
+}
+function doLogin(){
+  var u=$("u").value.trim(), p=$("p").value;
+  if(u==="admin"&&p==="bismillah"){
+    S.view = S.student?"dashboard":"identity";
+    try{sessionStorage.removeItem("nq_lock");}catch(e){}
+    render();
+  } else {
+    $("loginErr").textContent = t("wrongCred");
+  }
+}
+
+function bindShell(){
+  document.querySelectorAll("[data-nav]").forEach(function(el){
+    el.onclick=function(){
+      var nav=el.getAttribute("data-nav");
+      if(nav==="lockOut"){ if(confirm(t("confirmLock"))){ triggerLock("manual"); } return; }
+      if(S.quiz&&!S.quiz.finished&&nav!=="startQuiz"){ return; } // prevent leaving during quiz
+      if(nav==="startQuiz"&&S.quiz&&!S.quiz.finished){ S.view="quiz"; render(); return; }
+      if(nav==="startQuiz"){ buildQuiz(); S.view="startQuiz"; render(); return; }
+      S.view=nav; render();
+    };
+  });
+  document.querySelectorAll(".toggle [data-lang]").forEach(function(b){b.onclick=function(){S.lang=b.getAttribute("data-lang");render();};});
+  document.querySelectorAll(".toggle [data-theme]").forEach(function(b){b.onclick=function(){S.theme=b.getAttribute("data-theme");document.body.setAttribute("data-theme",S.theme);render();};});
+  if(S.view==="identity"){
+    $("saveId").onclick=function(){
+      var n=$("fName").value.trim(), c=$("fCls").value.trim(), no=$("fNo").value.trim(), m=$("fMad").value.trim();
+      if(!n||!c||!no||!m){ $("idErr").textContent=t("fillAll"); return; }
+      var changed = !S.student || S.student.name!==n || S.student.cls!==c || S.student.no!==no || S.student.mad!==m;
+      S.student={name:n,cls:c,no:no,mad:m};
+      if(changed){ buildQuiz(); } // auto-research/randomize when identity changes
+      S.view="dashboard";
+      render();
+    };
+  }
+  if(S.view==="startQuiz"&&$("goQuiz")){
+    $("goQuiz").onclick=function(){ S.view="quiz"; startTimer(); render(); };
+  }
+  if(S.view==="certificate"&&$("printBtn2")){ $("printBtn2").onclick=function(){window.print();}; }
+}
+
+function bindQuiz(){
+  document.querySelectorAll("#opts .opt").forEach(function(el){
+    el.onclick=function(){
+      var i=parseInt(el.getAttribute("data-opt"));
+      S.quiz.qs[S.quiz.idx].userAns=i;
+      document.querySelectorAll("#opts .opt").forEach(function(o){o.classList.remove("sel");});
+      el.classList.add("sel");
+    };
+  });
+  if($("nextBtn")) $("nextBtn").onclick=function(){ S.quiz.idx++; render(); };
+  if($("prevBtn")) $("prevBtn").onclick=function(){ if(S.quiz.idx>0){S.quiz.idx--;render();} };
+  if($("submitBtn")) $("submitBtn").onclick=function(){ if(confirm(t("confirmSubmit"))){ finishQuiz(); } };
+}
+
+function bindResult(){
+  if($("printBtn")) $("printBtn").onclick=function(){window.print();};
+}
+
+function bindLock(){
+  $("reloginBtn").onclick=function(){
+    S.locked=false; S.lockReason=""; S.quiz=null; S.view="login";
+    try{sessionStorage.removeItem("nq_lock");}catch(e){}
+    render();
+  };
+}
+
+/* ============ TIMER ============ */
+function startTimer(){
+  if(S.timerInt) clearInterval(S.timerInt);
+  S.timerInt=setInterval(function(){
+    if(!S.quiz||S.quiz.finished){clearInterval(S.timerInt);return;}
+    S.quiz.timeLeft--;
+    var el=$("timerDisp");
+    if(el){ el.textContent=fmtTime(S.quiz.timeLeft); if(S.quiz.timeLeft<=300){el.classList.add("warn");} }
+    if(S.quiz.timeLeft<=0){ clearInterval(S.timerInt); finishQuiz(); }
+  },1000);
+}
+
+function finishQuiz(){
+  if(S.timerInt) clearInterval(S.timerInt);
+  var qz=S.quiz; qz.finished=true;
+  var correct=0;
+  qz.qs.forEach(function(q){ if(q.userAns===q.a) correct++; });
+  var score=Math.round(correct/qz.qs.length*100);
+  S.lastResult={score:score,correct:correct,wrong:qz.qs.length-correct,date:new Date().toISOString()};
+  S.view="result";
+  render();
+}
+
+function triggerLock(reason){
+  if(S.timerInt) clearInterval(S.timerInt);
+  S.locked=true;
+  S.lockReason = reason==="tab"?t("lockReasonTab"):(reason==="time"?t("lockReasonTime"):t("lockReasonManual"));
+  try{sessionStorage.setItem("nq_lock",JSON.stringify({reason:reason,at:Date.now()}));}catch(e){}
+  render();
+}
+
+/* ============ ANTI-CHEAT ============ */
+// copy / cut / paste / context menu / select prevention
+["copy","cut","paste","contextmenu","selectstart","dragstart"].forEach(function(ev){
+  document.addEventListener(ev,function(e){
+    if(S.view==="quiz"||S.locked){ e.preventDefault(); return false; }
+  });
+});
+document.addEventListener("keydown",function(e){
+  if((S.view==="quiz"||S.locked)&&(e.ctrlKey||e.metaKey)&&["c","v","x","u","s","p"].indexOf(e.key.toLowerCase())>=0){
+    e.preventDefault(); return false;
+  }
+  if(e.key==="F12"){ e.preventDefault(); }
+});
+// tab switch detection → auto lock during exam
+document.addEventListener("visibilitychange",function(){
+  if(document.hidden && S.view==="quiz" && S.quiz && !S.quiz.finished){
+    triggerLock("tab");
+  }
+});
+window.addEventListener("blur",function(){
+  if(S.view==="quiz" && S.quiz && !S.quiz.finished){
+    setTimeout(function(){ if(document.hidden) triggerLock("tab"); },300);
+  }
+});
+// restore lock if persisted
+try{
+  var lp=sessionStorage.getItem("nq_lock");
+  if(lp){ var d=JSON.parse(lp); S.locked=true; S.lockReason = d.reason==="tab"?T.id.lockReasonTab:(d.reason==="time"?T.id.lockReasonTime:T.id.lockReasonManual); }
+}catch(e){}
+
+render();
+})();
+</script>
+</body>
+</html>
